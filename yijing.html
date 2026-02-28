@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>意識卦占卜</title>
+  <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/bundle.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:       #c9a84c;
+      --gold-light: #e8d5a3;
+      --gold-dim:   #7a6330;
+      --gold-faint: #2a2010;
+      --bg:         #080806;
+      --bg-card:    #111108;
+      --red:        #c0392b;
+      --red-glow:   rgba(192, 57, 43, 0.7);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--gold-light);
+      font-family: 'Noto Serif TC', 'SimSun', '宋體', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 60px;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 48px 20px 24px;
+    }
+    .title-main {
+      font-size: clamp(2.2rem, 8vw, 3.2rem);
+      color: var(--gold);
+      letter-spacing: 0.5em;
+      text-indent: 0.5em;
+      text-shadow: 0 0 40px rgba(201,168,76,0.45);
+    }
+    .title-sub {
+      font-size: 0.78rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.35em;
+      margin-top: 10px;
+      text-transform: uppercase;
+    }
+    .hr {
+      width: 180px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 22px auto;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid #2e2510;
+      border-radius: 3px;
+      padding: 28px 28px 24px;
+      width: 100%;
+      max-width: 580px;
+      margin: 8px 0;
+    }
+    .step-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--gold-dim);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      color: var(--gold);
+      margin-bottom: 14px;
+      letter-spacing: 0.05em;
+    }
+    .hint {
+      font-size: 0.82rem;
+      color: var(--gold-dim);
+      line-height: 1.7;
+      margin-top: 10px;
+    }
+
+    /* ── Form controls ── */
+    textarea, input[type=number] {
+      width: 100%;
+      background: #0a0a08;
+      border: 1px solid #2e2510;
+      color: var(--gold-light);
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 11px 13px;
+      border-radius: 2px;
+      outline: none;
+      resize: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus, input:focus { border-color: var(--gold-dim); }
+    input[type=number] { max-width: 160px; font-size: 1.3rem; text-align: center; }
+
+    btn-row { display: flex; gap: 12px; }
+    .btn {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-dim);
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 10px 26px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      border-radius: 2px;
+      margin-top: 16px;
+      transition: all 0.2s;
+    }
+    .btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-faint); }
+    .btn-primary { border-color: var(--gold); color: var(--gold); }
+    .btn-primary:hover { background: var(--gold); color: #080806; }
+
+    /* ── Meditation timer ── */
+    .timer-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .timer-ring-container {
+      position: relative;
+      width: 110px;
+      height: 110px;
+    }
+    .timer-svg {
+      transform: rotate(-90deg);
+      width: 110px;
+      height: 110px;
+    }
+    .timer-track { fill: none; stroke: #1c1a10; stroke-width: 4; }
+    .timer-arc   { fill: none; stroke: var(--gold); stroke-width: 4;
+                   stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+    .timer-num {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--gold);
+    }
+    .timer-msg { font-size: 0.85rem; color: var(--gold-dim); letter-spacing: 0.1em; }
+
+    /* ── Branch / time info ── */
+    .branch-box {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 14px;
+      background: #0a0a08;
+      border: 1px solid #2e2510;
+      border-radius: 2px;
+      margin: 14px 0 0;
+    }
+    .branch-char { font-size: 2.2rem; color: var(--gold); line-height: 1; }
+    .branch-detail { font-size: 0.8rem; color: var(--gold-dim); line-height: 1.9; }
+    .branch-detail strong { color: var(--gold-light); }
+
+    /* ── Calc summary rows ── */
+    .calc-table { margin: 4px 0 16px; border-collapse: collapse; width: 100%; }
+    .calc-table td { padding: 7px 4px; font-size: 0.85rem; border-bottom: 1px solid #1a1808; }
+    .calc-table td:first-child { color: var(--gold-dim); width: 48%; }
+    .calc-table td:last-child  { color: var(--gold-light); }
+
+    /* ── Hexagram display ── */
+    .hex-row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin: 20px 0 12px;
+    }
+    .hex-block { text-align: center; flex: 1; min-width: 150px; }
+    .hex-label-top {
+      font-size: 0.68rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.2em;
+      margin-bottom: 14px;
+    }
+    .hex-lines {
+      width: 100px;
+      margin: 0 auto 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .hex-line { height: 9px; display: flex; gap: 9px; align-items: center; }
+    .yang { background: var(--gold-light); flex: 1; height: 9px; border-radius: 2px; }
+    .yin-l, .yin-r { background: var(--gold-dim); flex: 1; height: 9px; border-radius: 2px; }
+    .hex-line.moving .yang,
+    .hex-line.moving .yin-l,
+    .hex-line.moving .yin-r {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red-glow);
+    }
+    .hex-line-num {
+      font-size: 0.6rem;
+      color: #3a3020;
+      width: 14px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .hex-line.moving .hex-line-num { color: var(--red); }
+
+    .hex-unicode { font-size: 3.5rem; line-height: 1; margin: 2px 0 8px; }
+    .hex-kw { font-size: 0.7rem; color: var(--gold-dim); margin-bottom: 3px; }
+    .hex-name { font-size: 1.25rem; color: var(--gold); letter-spacing: 0.1em; }
+
+    .arrow-between {
+      align-self: center;
+      font-size: 1.4rem;
+      color: #2e2510;
+      flex-shrink: 0;
+    }
+
+    .trigram-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--gold-dim);
+      margin-top: 4px;
+    }
+    .trigram-row span { color: var(--gold-light); }
+
+    .result-note {
+      font-size: 0.78rem;
+      color: var(--gold-dim);
+      text-align: center;
+      line-height: 1.7;
+      margin-top: 8px;
+    }
+
+    /* ── Character input ── */
+    #charIn {
+      width: 76px; height: 76px;
+      font-size: 2.4rem; text-align: center;
+      background: #0a0a08;
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-family: inherit;
+      border-radius: 2px; outline: none; padding: 0;
+      transition: border-color 0.2s; flex-shrink: 0; cursor: text;
+      line-height: 76px;
+    }
+    #charIn:focus { border-color: var(--gold); }
+    .char-result {
+      display: flex; flex-direction: column; justify-content: center;
+      min-height: 76px; gap: 5px;
+    }
+    .char-result .tc-char {
+      font-size: 2rem; color: var(--gold); vertical-align: middle; margin-left: 4px;
+    }
+    .char-result .stroke-badge {
+      font-size: 1.05rem; color: var(--gold); font-weight: bold;
+    }
+    .char-result .auto-note { color: var(--gold-faint); font-size: 0.75rem; }
+
+    .conv-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .conv-orig {
+      font-size: 2rem;
+      color: var(--gold-dim);
+      line-height: 1;
+    }
+    .conv-arrow {
+      font-size: 1rem;
+      color: #3a3020;
+    }
+    .conv-badge {
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-dim);
+      border-radius: 2px;
+      align-self: center;
+      white-space: nowrap;
+    }
+    .conv-badge.is-tc {
+      border-color: #2a4a2a;
+      color: #5a8a5a;
+    }
+    .conv-warn {
+      font-size: 0.7rem;
+      color: #8a5a20;
+      margin-top: 2px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ── footer ── */
+    footer {
+      color: #2e2510;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      margin-top: 40px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="title-main">意識卦</div>
+  <div class="title-sub">Consciousness Hexagram · I Ching Divination</div>
+  <div class="hr"></div>
+</header>
+
+<!-- ── Step 1: Question ── -->
+<div class="card" id="s1">
+  <div class="step-tag">Step 1 · 問卦</div>
+  <h2>寫下你的問題</h2>
+  <textarea id="qInput" rows="3" placeholder="建議使用是非題，例：這次求職有沒有機會？"></textarea>
+  <button class="btn btn-primary" onclick="goMeditate()">開始靜心 →</button>
+  <p class="hint">以出離心專注問題 10–15 秒，不執著得失。</p>
+</div>
+
+<!-- ── Step 2: Meditation ── -->
+<div class="card hidden" id="s2">
+  <div class="step-tag">Step 2 · 靜心</div>
+  <h2>觀想正體漢字</h2>
+  <p class="hint" style="margin-bottom:0">閉眼專注於問題，讓一個正體漢字自然浮現。</p>
+  <div class="timer-wrap">
+    <div class="timer-ring-container">
+      <svg class="timer-svg" viewBox="0 0 110 110">
+        <circle class="timer-track" cx="55" cy="55" r="48"/>
+        <circle class="timer-arc" id="timerArc" cx="55" cy="55" r="48"
+          stroke-dasharray="301.6" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-num" id="timerNum">15</div>
+    </div>
+    <div class="timer-msg" id="timerMsg">靜心中…</div>
+  </div>
+  <div style="text-align:center">
+    <button class="btn hidden" id="skipBtn" onclick="goStrokes()">已觀想完成 →</button>
+  </div>
+</div>
+
+<!-- ── Step 3: Character + Stroke count ── -->
+<div class="card hidden" id="s3">
+  <div class="step-tag">Step 3 · 輸入字與筆畫</div>
+  <h2>輸入觀想的字</h2>
+  <div style="display:flex;gap:18px;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap">
+    <input type="text" id="charIn" maxlength="1" placeholder="字" autocomplete="off" autocorrect="off"/>
+    <div class="char-result" id="charInfo"><span class="hint" style="opacity:0.5">輸入字後自動查詢筆畫</span></div>
+  </div>
+
+  <h2>確認筆畫數</h2>
+  <input type="number" id="strokeIn" min="1" max="300" placeholder="12"/>
+  <div class="branch-box" id="branchBox"></div>
+  <br>
+  <button class="btn btn-primary" onclick="doCalculate()">起卦 →</button>
+  <p class="hint">輸入字後筆畫會自動填入（需網路）；也可直接手動填寫。筆畫 &gt; 8 時系統自動取餘數。</p>
+</div>
+
+<!-- ── Results ── -->
+<div class="card hidden" id="s4">
+  <div class="step-tag">Result · 卦象</div>
+  <h2 id="rQuestion" style="font-size:1rem;color:var(--gold-dim);font-weight:normal;margin-bottom:16px;"></h2>
+
+  <table class="calc-table" id="calcTable"></table>
+
+  <div class="hr" style="margin:18px 0;"></div>
+
+  <div class="hex-row">
+    <div class="hex-block">
+      <div class="hex-label-top">本 卦 · 當前處境</div>
+      <div class="hex-lines" id="origLines"></div>
+      <div class="hex-kw" id="origKw"></div>
+      <div class="hex-name" id="origName"></div>
+      <div class="trigram-row" id="origTrigrams"></div>
+    </div>
+
+    <div class="arrow-between">&#8594;</div>
+
+    <div class="hex-block">
+      <div class="hex-label-top">之 卦 · 發展趨勢</div>
+      <div class="hex-lines" id="futLines"></div>
+      <div class="hex-kw" id="futKw"></div>
+      <div class="hex-name" id="futName"></div>
+      <div class="trigram-row" id="futTrigrams"></div>
+    </div>
+  </div>
+
+  <p class="result-note">
+    <span style="color:var(--red);">■</span> 紅色爻為動爻（第 <span id="rMoveLine"></span> 爻）。
+    本卦象徵當下，之卦象徵趨勢。
+  </p>
+
+  <div style="text-align:center;margin-top:22px;">
+    <button class="btn" onclick="doReset()">重新起卦</button>
+  </div>
+</div>
+
+<footer>意識卦 · 易經白話講座</footer>
+
+<script>
+// ─────────────────── Data ───────────────────
+const T = [ null,
+  { n:'乾', el:'天', sym:'☰', l:[1,1,1] },
+  { n:'兌', el:'澤', sym:'☱', l:[1,1,0] },
+  { n:'離', el:'火', sym:'☲', l:[1,0,1] },
+  { n:'震', el:'雷', sym:'☳', l:[1,0,0] },
+  { n:'巽', el:'風', sym:'☴', l:[0,1,1] },
+  { n:'坎', el:'水', sym:'☵', l:[0,1,0] },
+  { n:'艮', el:'山', sym:'☶', l:[0,0,1] },
+  { n:'坤', el:'地', sym:'☷', l:[0,0,0] },
+];
+
+// HT[lower][upper] = King-Wen number
+const HT = [ null,
+  [null, 1,43,14,34, 9, 5,26,11],
+  [null,10,58,38,54,61,60,41,19],
+  [null,13,49,30,55,37,63,22,36],
+  [null,25,17,21,51,42, 3,27,24],
+  [null,44,28,50,32,57,48,18,46],
+  [null, 6,47,64,40,59,29, 4, 7],
+  [null,33,31,56,62,53,39,52,15],
+  [null,12,45,35,16,20, 8,23, 2],
+];
+
+const HN = {
+   1:'乾為天',  2:'坤為地',  3:'水雷屯',  4:'山水蒙',
+   5:'水天需',  6:'天水訟',  7:'地水師',  8:'水地比',
+   9:'風天小畜',10:'天澤履', 11:'地天泰', 12:'天地否',
+  13:'天火同人',14:'火天大有',15:'地山謙', 16:'雷地豫',
+  17:'澤雷隨',  18:'山風蠱', 19:'地澤臨', 20:'風地觀',
+  21:'火雷噬嗑',22:'山火賁', 23:'山地剝', 24:'地雷復',
+  25:'天雷無妄',26:'山天大畜',27:'山雷頤',28:'澤風大過',
+  29:'坎為水',  30:'離為火', 31:'澤山咸', 32:'雷風恆',
+  33:'天山遯',  34:'雷天大壯',35:'火地晉',36:'地火明夷',
+  37:'風火家人',38:'火澤睽', 39:'水山蹇', 40:'雷水解',
+  41:'山澤損',  42:'風雷益', 43:'澤天夬', 44:'天風姤',
+  45:'澤地萃',  46:'地風升', 47:'澤水困', 48:'水風井',
+  49:'澤火革',  50:'火風鼎', 51:'震為雷', 52:'艮為山',
+  53:'風山漸',  54:'雷澤歸妹',55:'雷火豐',56:'火山旅',
+  57:'巽為風',  58:'兌為澤', 59:'風水渙', 60:'水澤節',
+  61:'風澤中孚',62:'雷山小過',63:'水火既濟',64:'火水未濟',
+};
+
+// King-Wen number → Unicode hexagram char (U+4DC0 = hexagram 1)
+const hexChar = n => String.fromCodePoint(0x4DC0 + n - 1);
+
+const BRANCHES = [
+  {n:'子',num:1, r:'23:00–01:00'},{n:'丑',num:2, r:'01:00–03:00'},
+  {n:'寅',num:3, r:'03:00–05:00'},{n:'卯',num:4, r:'05:00–07:00'},
+  {n:'辰',num:5, r:'07:00–09:00'},{n:'巳',num:6, r:'09:00–11:00'},
+  {n:'午',num:7, r:'11:00–13:00'},{n:'未',num:8, r:'13:00–15:00'},
+  {n:'申',num:9, r:'15:00–17:00'},{n:'酉',num:10,r:'17:00–19:00'},
+  {n:'戌',num:11,r:'19:00–21:00'},{n:'亥',num:12,r:'21:00–23:00'},
+];
+
+function getBranch() {
+  const h = new Date().getHours();
+  if (h === 23 || h === 0) return BRANCHES[0];
+  if (h <= 2)  return BRANCHES[1];
+  if (h <= 4)  return BRANCHES[2];
+  if (h <= 6)  return BRANCHES[3];
+  if (h <= 8)  return BRANCHES[4];
+  if (h <= 10) return BRANCHES[5];
+  if (h <= 12) return BRANCHES[6];
+  if (h <= 14) return BRANCHES[7];
+  if (h <= 16) return BRANCHES[8];
+  if (h <= 18) return BRANCHES[9];
+  if (h <= 20) return BRANCHES[10];
+  return BRANCHES[11];
+}
+
+// ─────────────────── Helpers ───────────────────
+function $(id){ return document.getElementById(id); }
+function show(id){ $(id).classList.remove('hidden'); }
+function hide(id){ $(id).classList.add('hidden'); }
+
+function trigramFromLines(ls) {
+  for (let i=1;i<=8;i++)
+    if(T[i].l[0]===ls[0]&&T[i].l[1]===ls[1]&&T[i].l[2]===ls[2]) return i;
+  return 1;
+}
+
+function renderHex(containerId, lines, movingIdx /* 0-based, -1 = none */) {
+  const el = $(containerId);
+  el.innerHTML = '';
+  // lines[0]=bottom, lines[5]=top
+  // Render bottom→top; CSS flex-direction:column renders top→bottom visually,
+  // so we output lines 5→0 to show 5 at top, 0 at bottom.
+  for (let i = 5; i >= 0; i--) {
+    const row = document.createElement('div');
+    row.className = 'hex-line' + (i === movingIdx ? ' moving' : '');
+
+    const numSpan = document.createElement('span');
+    numSpan.className = 'hex-line-num';
+    numSpan.textContent = i + 1;
+    row.appendChild(numSpan);
+
+    if (lines[i] === 1) {
+      const y = document.createElement('div');
+      y.className = 'yang';
+      row.appendChild(y);
+    } else {
+      const yl = document.createElement('div'); yl.className = 'yin-l';
+      const yr = document.createElement('div'); yr.className = 'yin-r';
+      row.appendChild(yl);
+      row.appendChild(yr);
+    }
+    el.appendChild(row);
+  }
+}
+
+// ─────────────────── Steps ───────────────────
+let question = '';
+let timerID = null;
+
+function goMeditate() {
+  question = $('qInput').value.trim();
+  if (!question) { alert('請先輸入問題。'); return; }
+  hide('s1'); show('s2');
+
+  const TOTAL = 15;
+  const circ  = 2 * Math.PI * 48; // ~301.6
+  let remaining = TOTAL;
+  const arc = $('timerArc');
+  arc.style.strokeDashoffset = '0';
+
+  function tick() {
+    remaining--;
+    $('timerNum').textContent = remaining > 0 ? remaining : '✓';
+    arc.style.strokeDashoffset = String(circ * (1 - remaining / TOTAL));
+    if (remaining <= 0) {
+      clearInterval(timerID);
+      $('timerMsg').textContent = '靜心完成，記住那個字。';
+      $('timerMsg').style.color = 'var(--gold)';
+    }
+  }
+  timerID = setInterval(tick, 1000);
+  // Allow skipping after 5s
+  setTimeout(() => show('skipBtn'), 5000);
+}
+
+// ─────────────────── Character lookup ───────────────────
+
+// Fallback SC→TC map used when OpenCC CDN is unavailable
+const SC_TC_MAP = {
+  '爱':'愛','罢':'罷','摆':'擺','办':'辦','帮':'幫','宝':'寶','报':'報',
+  '备':'備','笔':'筆','边':'邊','变':'變','标':'標','补':'補','币':'幣',
+  '财':'財','参':'參','长':'長','场':'場','车':'車','陈':'陳','冲':'衝',
+  '处':'處','传':'傳','从':'從','丛':'叢','苍':'蒼','层':'層','产':'產',
+  '仓':'倉','厂':'廠','称':'稱','词':'詞','触':'觸','迟':'遲','础':'礎',
+  '储':'儲','辞':'辭','聪':'聰','错':'錯','达':'達','带':'帶','单':'單',
+  '当':'當','导':'導','灯':'燈','电':'電','东':'東','动':'動','断':'斷',
+  '对':'對','队':'隊','担':'擔','档':'檔','党':'黨','弹':'彈','灾':'災',
+  '儿':'兒','尔':'爾','发':'發','丰':'豐','风':'風','复':'復','费':'費',
+  '飞':'飛','废':'廢','坟':'墳','奋':'奮','妇':'婦','干':'乾','钢':'鋼',
+  '个':'個','给':'給','关':'關','广':'廣','规':'規','过':'過','观':'觀',
+  '贯':'貫','惯':'慣','购':'購','贡':'貢','顾':'顧','挂':'掛','馆':'館',
+  '归':'歸','龟':'龜','贵':'貴','汉':'漢','号':'號','后':'後','华':'華',
+  '画':'畫','话':'話','环':'環','换':'換','汇':'匯','会':'會','获':'獲',
+  '还':'還','欢':'歡','户':'戶','护':'護','划':'劃','怀':'懷','几':'幾',
+  '际':'際','计':'計','记':'記','价':'價','间':'間','将':'將','进':'進',
+  '净':'淨','举':'舉','极':'極','济':'濟','继':'繼','检':'檢','简':'簡',
+  '见':'見','奖':'獎','结':'結','惊':'驚','经':'經','据':'據','觉':'覺',
+  '军':'軍','尽':'盡','积':'積','绩':'績','开':'開','块':'塊','宽':'寬',
+  '矿':'礦','来':'來','类':'類','里':'裡','两':'兩','联':'聯','脸':'臉',
+  '龙':'龍','录':'錄','乱':'亂','论':'論','历':'歷','连':'連','炼':'煉',
+  '练':'練','粮':'糧','灵':'靈','领':'領','刘':'劉','楼':'樓','虑':'慮',
+  '绿':'綠','乐':'樂','赖':'賴','烂':'爛','劳':'勞','泪':'淚','离':'離',
+  '礼':'禮','丽':'麗','临':'臨','马':'馬','买':'買','麦':'麥','满':'滿',
+  '贸':'貿','梦':'夢','弥':'彌','庙':'廟','灭':'滅','鸣':'鳴','谋':'謀',
+  '们':'們','么':'麼','难':'難','鸟':'鳥','农':'農','脑':'腦','宁':'寧',
+  '纳':'納','盘':'盤','凭':'憑','评':'評','朴':'樸','气':'氣','钱':'錢',
+  '亲':'親','穷':'窮','区':'區','齐':'齊','强':'強','桥':'橋','轻':'輕',
+  '请':'請','庆':'慶','权':'權','骑':'騎','弃':'棄','迁':'遷','签':'簽',
+  '谦':'謙','让':'讓','认':'認','热':'熱','荣':'榮','软':'軟','绕':'繞',
+  '扰':'擾','时':'時','书':'書','树':'樹','数':'數','说':'說','随':'隨',
+  '伤':'傷','圣':'聖','胜':'勝','师':'師','实':'實','势':'勢','适':'適',
+  '寿':'壽','兽':'獸','属':'屬','顺':'順','岁':'歲','损':'損','声':'聲',
+  '烧':'燒','摄':'攝','识':'識','释':'釋','视':'視','输':'輸','术':'術',
+  '双':'雙','态':'態','体':'體','条':'條','听':'聽','头':'頭','图':'圖',
+  '台':'臺','谈':'談','叹':'嘆','团':'團','铁':'鐵','统':'統','题':'題',
+  '讨':'討','万':'萬','为':'為','问':'問','无':'無','维':'維','网':'網',
+  '稳':'穩','围':'圍','卫':'衛','务':'務','现':'現','线':'線','乡':'鄉',
+  '响':'響','写':'寫','选':'選','学':'學','语':'語','细':'細','显':'顯',
+  '续':'續','寻':'尋','训':'訓','虚':'虛','兴':'興','项':'項','云':'雲',
+  '运':'運','义':'義','艺':'藝','应':'應','鱼':'魚','与':'與','员':'員',
+  '园':'園','远':'遠','约':'約','阳':'陽','样':'樣','验':'驗','盐':'鹽',
+  '压':'壓','忆':'憶','仪':'儀','阴':'陰','银':'銀','营':'營','优':'優',
+  '邮':'郵','忧':'憂','愿':'願','预':'預','战':'戰','这':'這','针':'針',
+  '阵':'陣','证':'證','众':'眾','专':'專','转':'轉','总':'總','泽':'澤',
+  '责':'責','张':'張','质':'質','钟':'鐘','终':'終','种':'種','资':'資',
+  '赞':'贊','赵':'趙','齿':'齒','争':'爭','征':'徵','诸':'諸','壮':'壯',
+  '锋':'鋒','饰':'飾','饥':'飢','饮':'飲','饱':'飽','馈':'饋','驱':'驅',
+  '验':'驗','骤':'驟','腊':'臘','脏':'髒','胀':'脹','胁':'脅','脑':'腦',
+  '肤':'膚','肮':'骯','腾':'騰','与':'與','举':'舉','兴':'興','旧':'舊',
+  '归':'歸','当':'當','尝':'嘗','赏':'賞','党':'黨','棱':'稜','树':'樹',
+};
+
+let _toTC = null;
+function getConverter() {
+  if (!_toTC && window.OpenCC) {
+    try { _toTC = OpenCC.Converter({ from: 'cn', to: 'tw' }); } catch(e) {}
+  }
+  return _toTC;
+}
+
+async function fetchStrokes(char) {
+  try {
+    const r = await fetch(
+      `https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/${encodeURIComponent(char)}.json`,
+      { cache: 'force-cache' }
+    );
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d.strokes) ? d.strokes.length : null;
+  } catch { return null; }
+}
+
+async function handleCharInput() {
+  const raw = $('charIn').value;
+  const m = raw.match(/[\u4e00-\u9fff\u3400-\u4dbf]/);
+  if (!m) { $('charInfo').innerHTML = '<span class="hint" style="opacity:0.5">輸入字後自動查詢筆畫</span>'; return; }
+
+  const ch = m[0];
+  $('charIn').value = ch;
+
+  // Step 1: try OpenCC
+  let tc = ch;
+  const conv = getConverter();
+  if (conv) {
+    try { const res = conv(ch); if (res && res.length > 0) tc = res[0]; } catch(e) {}
+  }
+  // Step 2: if OpenCC didn't convert, try built-in fallback map
+  if (tc === ch && SC_TC_MAP[ch]) {
+    tc = SC_TC_MAP[ch];
+  }
+
+  const converted = tc !== ch;
+  const openccAvailable = !!conv;
+
+  // Build conversion display
+  let convHtml;
+  if (converted) {
+    convHtml = `<div class="conv-row">
+      <span class="conv-orig">${ch}</span>
+      <span class="conv-arrow">→</span>
+      <span class="tc-char">${tc}</span>
+      <span class="conv-badge">繁體轉換</span>
+    </div>`;
+  } else {
+    convHtml = `<div class="conv-row">
+      <span class="tc-char">${tc}</span>
+      <span class="conv-badge is-tc">已是繁體</span>
+    </div>`;
+  }
+  // Warn only if OpenCC failed AND fallback didn't convert (can't confirm TC)
+  if (!openccAvailable && !converted) {
+    convHtml += `<div class="conv-warn">⚠ 轉換功能未載入，請確認輸入為繁體字</div>`;
+  }
+
+  $('charInfo').innerHTML = convHtml + '<span class="hint" style="opacity:0.35;font-size:0.78rem">查詢筆畫中…</span>';
+
+  // Fetch stroke count (TC first, fallback to original)
+  let count = await fetchStrokes(tc);
+  if (!count && tc !== ch) count = await fetchStrokes(ch);
+
+  if (count) {
+    $('strokeIn').value = count;
+    $('charInfo').innerHTML = convHtml + `
+      <div class="hint">筆畫：<span class="stroke-badge">${count} 畫</span>
+        <span class="auto-note">（已自動填入）</span>
+      </div>`;
+  } else {
+    $('charInfo').innerHTML = convHtml +
+      `<div class="hint" style="color:var(--gold-dim)">找不到筆畫資料，請手動輸入</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  $('charIn').addEventListener('input', handleCharInput);
+});
+
+function goStrokes() {
+  clearInterval(timerID);
+  hide('s2'); show('s3');
+  const b = getBranch();
+  const t = new Date();
+  const ts = t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
+  $('branchBox').innerHTML =
+    `<div class="branch-char">${b.n}</div>
+     <div class="branch-detail">
+       時辰：<strong>${b.n}時</strong>（${b.r}）<br>
+       時辰數：<strong>${b.num}</strong><br>
+       現在時間：<strong>${ts}</strong>
+     </div>`;
+  setTimeout(()=>$('charIn').focus(), 100);
+}
+
+function doCalculate() {
+  const raw = parseInt($('strokeIn').value);
+  if (!raw || raw < 1) { alert('請輸入正確的筆畫數。'); return; }
+
+  const branch = getBranch();
+  const tn = branch.num;
+
+  // Upper trigram
+  let up = raw % 8; if (up === 0) up = 8;
+  // Lower trigram: start after upper, count tn steps forward (wrap 1-8)
+  const lo = ((up - 1 + tn) % 8) + 1;
+  // Changing line (1-6)
+  let mv = (raw + tn) % 6; if (mv === 0) mv = 6;
+
+  const origNum = HT[lo][up];
+
+  // Original hexagram lines [0]=bottom … [5]=top
+  const origLines = [...T[lo].l, ...T[up].l];
+
+  // Future hexagram: flip changing line (1-indexed → 0-indexed = mv-1)
+  const futLines = [...origLines];
+  futLines[mv - 1] = futLines[mv - 1] === 1 ? 0 : 1;
+  const futLo = trigramFromLines(futLines.slice(0,3));
+  const futUp = trigramFromLines(futLines.slice(3,6));
+  const futNum = HT[futLo][futUp];
+
+  // ── Render ──
+  $('rQuestion').textContent = '「' + question + '」';
+
+  $('calcTable').innerHTML = `
+    <tr><td>字的筆畫</td><td>${raw} 畫</td></tr>
+    <tr><td>時辰</td><td>${branch.n}時（時辰數 ${tn}）</td></tr>
+    <tr><td>上卦</td><td>${raw} ÷ 8 餘 ${up}　→　${T[up].n}（${T[up].el}）</td></tr>
+    <tr><td>下卦</td><td>從 ${T[up].n} 數 ${tn} 步　→　${T[lo].n}（${T[lo].el}）</td></tr>
+    <tr><td>動爻</td><td>（${raw}＋${tn}）÷ 6 餘 ${mv}　→　第 ${mv} 爻</td></tr>`;
+
+  renderHex('origLines', origLines, mv - 1);
+  $('origKw').textContent = '第 ' + origNum + ' 卦';
+  $('origName').textContent = HN[origNum];
+  $('origTrigrams').innerHTML =
+    `上 <span>${T[up].n}${T[up].sym}</span> ／ 下 <span>${T[lo].n}${T[lo].sym}</span>`;
+
+  renderHex('futLines', futLines, -1);
+  $('futKw').textContent = '第 ' + futNum + ' 卦';
+  $('futName').textContent = HN[futNum];
+  $('futTrigrams').innerHTML =
+    `上 <span>${T[futUp].n}${T[futUp].sym}</span> ／ 下 <span>${T[futLo].n}${T[futLo].sym}</span>`;
+
+  $('rMoveLine').textContent = mv;
+
+  hide('s3'); show('s4');
+}
+
+function doReset() {
+  clearInterval(timerID);
+  $('qInput').value = '';
+  $('charIn').value = '';
+  $('charInfo').innerHTML = '<span class="hint" style="opacity:0.5">輸入字後自動查詢筆畫</span>';
+  $('strokeIn').value = '';
+  $('timerNum').textContent = '15';
+  $('timerMsg').textContent = '靜心中…';
+  $('timerMsg').style.color = '';
+  $('timerArc').style.strokeDashoffset = '0';
+  $('skipBtn').classList.add('hidden');
+  ['s2','s3','s4'].forEach(hide);
+  show('s1');
+}
+</script>
+</body>
+</html>
