@@ -433,7 +433,7 @@
       <div class="hex-lines" id="origLines"></div>
       <div class="hex-kw" id="origKw"></div>
       <div class="hex-name" id="origName"></div>
-      <div class="trigram-row" id="origTrigrams"></div>
+      <div class="trigram-row" id="origTrigrams" style="display:none"></div>
     </div>
 
     <div class="arrow-between">&#8594;</div>
@@ -443,13 +443,12 @@
       <div class="hex-lines" id="futLines"></div>
       <div class="hex-kw" id="futKw"></div>
       <div class="hex-name" id="futName"></div>
-      <div class="trigram-row" id="futTrigrams"></div>
+      <div class="trigram-row" id="futTrigrams" style="display:none"></div>
     </div>
   </div>
 
   <p class="result-note">
-    <span style="color:var(--red);">■</span> 紅色爻為動爻（第 <span id="rMoveLine"></span> 爻）。
-    本卦象徵當下，之卦象徵趨勢。
+    本卦象徵當下，之卦象徵趨勢。<span id="rMoveLine" style="display:none"></span>
   </p>
 
   <button class="interp-toggle" id="interpToggle" onclick="toggleInterp()">卦象解析 ▾</button>
@@ -885,10 +884,7 @@ function doCalculate() {
 
   $('calcTable').innerHTML = `
     <tr><td>字的筆畫</td><td>${raw} 畫</td></tr>
-    <tr><td>時辰</td><td>${branch.n}時（時辰數 ${tn}）</td></tr>
-    <tr><td>上卦</td><td>${raw} ÷ 8 餘 ${up}　→　${T[up].n}（${T[up].el}）</td></tr>
-    <tr><td>下卦</td><td>從 ${T[up].n} 數 ${tn} 步　→　${T[lo].n}（${T[lo].el}）</td></tr>
-    <tr><td>動爻</td><td>（${raw}＋${tn}）÷ 6 餘 ${mv}　→　第 ${mv} 爻</td></tr>`;
+    <tr><td>時辰</td><td>${branch.n}時（時辰數 ${tn}）</td></tr>`;
 
   renderHex('origLines', origLines, mv - 1);
   $('origKw').textContent = '第 ' + origNum + ' 卦';
