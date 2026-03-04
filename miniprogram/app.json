@@ -1,0 +1,16 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "backgroundColor": "#080806",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#080806",
+    "navigationBarTitleText": "意識卦占卜",
+    "navigationBarTextStyle": "white"
+  },
+  "networkTimeout": {
+    "request": 10000
+  },
+  "sitemapLocation": "sitemap.json"
+}

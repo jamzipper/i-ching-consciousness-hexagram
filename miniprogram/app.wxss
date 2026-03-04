@@ -1,0 +1,19 @@
+/* Global styles — mirrors :root variables from yijing.html */
+page {
+  --gold:       #c9a84c;
+  --gold-light: #e8d5a3;
+  --gold-dim:   #7a6330;
+  --gold-faint: #2a2010;
+  --bg:         #080806;
+  --bg-card:    #111108;
+  --red:        #c0392b;
+
+  background-color: #080806;
+  color: #e8d5a3;
+  font-family: 'Songti SC', 'STSong', '宋體', serif;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+}
