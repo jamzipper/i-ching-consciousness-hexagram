@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>意識卦占卜</title>
-  <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -315,6 +315,88 @@
       text-align: center;
     }
 
+    /* ── Method explanation ── */
+    .method-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      border: none;
+      color: var(--gold-dim);
+      font-family: inherit;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      cursor: pointer;
+      padding: 4px 0 16px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .method-toggle:hover { color: var(--gold); }
+    .method-toggle .chevron { transition: transform 0.25s; display: inline-block; }
+    .method-toggle.open .chevron { transform: rotate(180deg); }
+    .method-panel {
+      display: none;
+      width: 100%;
+      max-width: 580px;
+      margin-bottom: 8px;
+    }
+    .method-panel.open { display: block; }
+    .method-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid #2e2510;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .method-step {
+      display: flex;
+      gap: 16px;
+      padding: 14px 18px;
+      border-bottom: 1px solid #1e1808;
+      background: var(--bg-card);
+    }
+    .method-step:last-child { border-bottom: none; }
+    .method-step-num {
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      color: var(--gold-dim);
+      min-width: 36px;
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+    .method-step-body {}
+    .method-step-title {
+      font-size: 0.9rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+    .method-step-desc {
+      font-size: 0.8rem;
+      color: var(--gold-dim);
+      line-height: 1.8;
+    }
+    .method-step-desc em {
+      color: var(--gold-light);
+      font-style: normal;
+    }
+    .method-formula {
+      margin-top: 10px;
+      background: #0a0a08;
+      border: 1px solid #2e2510;
+      border-radius: 2px;
+      padding: 10px 14px;
+    }
+    .method-formula-row {
+      display: flex;
+      gap: 8px;
+      font-size: 0.77rem;
+      line-height: 2;
+    }
+    .method-formula-row .lbl { color: var(--gold-dim); min-width: 90px; flex-shrink: 0; }
+    .method-formula-row .val { color: var(--gold-light); }
+
     /* ── Interpretation ── */
     .interp-toggle {
       display: block;
@@ -370,6 +452,74 @@
   <div class="title-sub">Consciousness Hexagram · I Ching Divination</div>
   <div class="hr"></div>
 </header>
+
+<!-- ── Method explanation ── -->
+<button class="method-toggle" id="methodToggle" onclick="toggleMethod()">
+  起卦方法說明 <span class="chevron">▾</span>
+</button>
+<div class="method-panel" id="methodPanel">
+  <div class="method-steps">
+    <div class="method-step">
+      <div class="method-step-num">STEP 1</div>
+      <div class="method-step-body">
+        <div class="method-step-title">問卦 · 寫下問題</div>
+        <div class="method-step-desc">
+          心中帶著一個清晰的問題，建議以<em>是非題</em>表達，例如「這次升職有沒有機會？」。問題愈具體，卦象愈能聚焦。
+        </div>
+      </div>
+    </div>
+    <div class="method-step">
+      <div class="method-step-num">STEP 2</div>
+      <div class="method-step-body">
+        <div class="method-step-title">靜心 · 安定意識</div>
+        <div class="method-step-desc">
+          閉眼，以<em>出離心</em>（不執著於結果）默念問題 10–15 秒。此步驟讓潛意識與當下時空相應，準備接收訊息。
+        </div>
+      </div>
+    </div>
+    <div class="method-step">
+      <div class="method-step-num">STEP 3</div>
+      <div class="method-step-body">
+        <div class="method-step-title">觀想 · 浮現漢字</div>
+        <div class="method-step-desc">
+          靜心後，讓一個<em>正體漢字</em>自然浮現於腦海，不要刻意選擇。浮現的字承載了意識當下的感知，即為起卦的媒介。
+        </div>
+      </div>
+    </div>
+    <div class="method-step">
+      <div class="method-step-num">STEP 4</div>
+      <div class="method-step-body">
+        <div class="method-step-title">起卦 · 筆畫與時辰</div>
+        <div class="method-step-desc">
+          輸入觀想的字，系統取其<em>正體字筆畫數</em>，並記錄當前<em>時辰</em>（每兩小時一個時辰，共十二地支），依下列公式推算卦象：
+        </div>
+        <div class="method-formula">
+          <div class="method-formula-row">
+            <span class="lbl">上卦（外卦）</span>
+            <span class="val">筆畫數 ÷ 8 取餘數（餘 0 算 8）→ 對應八卦序號</span>
+          </div>
+          <div class="method-formula-row">
+            <span class="lbl">下卦（內卦）</span>
+            <span class="val">（上卦序號 − 1 + 時辰數）÷ 8 取餘數 + 1</span>
+          </div>
+          <div class="method-formula-row">
+            <span class="lbl">動爻</span>
+            <span class="val">（筆畫數 + 時辰數）÷ 6 取餘數（餘 0 算 6）→ 第幾爻變動</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="method-step">
+      <div class="method-step-num">結果</div>
+      <div class="method-step-body">
+        <div class="method-step-title">本卦與之卦</div>
+        <div class="method-step-desc">
+          <em>本卦</em>代表當前處境；動爻翻轉後得到<em>之卦</em>，象徵事態的發展趨勢。兩卦合看，即可理解現狀與走向。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ── Step 1: Question ── -->
 <div class="card" id="s1">
@@ -1057,6 +1207,13 @@ function getInterpretation(num) {
     textEnd = INTERP_RAW.length;
   }
   return INTERP_RAW.substring(textStart, textEnd).trim();
+}
+
+function toggleMethod() {
+  const panel = $('methodPanel');
+  const btn   = $('methodToggle');
+  const isOpen = panel.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
 }
 
 function toggleInterp() {
