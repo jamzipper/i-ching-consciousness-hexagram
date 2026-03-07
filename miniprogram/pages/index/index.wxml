@@ -1,0 +1,37 @@
+<view class="container">
+  <view class="header">
+    <text class="title-main">意識卦</text>
+    <text class="title-sub">Consciousness Hexagram · I Ching Divination</text>
+    <view class="hr"></view>
+  </view>
+
+  <!-- Method explanation -->
+  <view class="method-toggle" bindtap="toggleMethod">
+    <text>起卦方法說明</text>
+    <text class="chevron {{methodOpen ? 'open' : ''}}">▾</text>
+  </view>
+  <view class="method-panel {{methodOpen ? 'open' : ''}}">
+    <view class="method-steps">
+      <view class="method-step" wx:for="{{steps}}" wx:key="num">
+        <text class="method-step-num">{{item.num}}</text>
+        <view class="method-step-body">
+          <text class="method-step-title">{{item.title}}</text>
+          <text class="method-step-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Step 1: Question -->
+  <view class="card">
+    <text class="step-tag">Step 1 · 問卦</text>
+    <text class="card-title">寫下你的問題</text>
+    <textarea class="input-area" placeholder="建議使用是非題，例：這次求職有沒有機會？" value="{{question}}" bindinput="onQuestionInput" maxlength="200"></textarea>
+    <view class="btn btn-primary" bindtap="goMeditate">開始靜心 →</view>
+    <text class="hint">以出離心專注問題 10–15 秒，不執著得失。</text>
+  </view>
+
+  <view class="footer">
+    <text>意識卦 · 易經白話講座</text>
+  </view>
+</view>

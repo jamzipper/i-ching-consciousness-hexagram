@@ -1,0 +1,16 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/input/input",
+    "pages/meditate/meditate",
+    "pages/result/result"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#080806",
+    "navigationBarTitleText": "意識卦",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#080806"
+  },
+  "sitemapLocation": "sitemap.json"
+}

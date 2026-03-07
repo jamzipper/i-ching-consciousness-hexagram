@@ -1,0 +1,19 @@
+<view class="container">
+  <view class="card">
+    <text class="step-tag">Step 2 · 靜心</text>
+    <text class="card-title">觀想正體漢字</text>
+    <text class="hint" style="margin-bottom: 0">閉眼專注於問題，讓一個正體漢字自然浮現。</text>
+
+    <view class="timer-wrap">
+      <view class="timer-ring-container">
+        <canvas type="2d" id="timerCanvas" class="timer-canvas"></canvas>
+        <text class="timer-num">{{remaining > 0 ? remaining : '✓'}}</text>
+      </view>
+      <text class="timer-msg" style="color: {{done ? 'var(--gold)' : 'var(--gold-dim)'}}">{{done ? '靜心完成，記住那個字。' : '靜心中…'}}</text>
+    </view>
+
+    <view class="btn-wrap" wx:if="{{canSkip}}">
+      <view class="btn btn-primary" bindtap="goInput">已觀想完成 →</view>
+    </view>
+  </view>
+</view>

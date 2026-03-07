@@ -1,0 +1,47 @@
+<view class="container">
+  <view class="card">
+    <text class="step-tag">Step 3 · 輸入字與筆畫</text>
+    <text class="card-title">輸入觀想的字</text>
+
+    <view class="char-row">
+      <input class="char-input" type="text" maxlength="1" placeholder="字" value="{{charValue}}" bindinput="onCharInput" />
+      <view class="char-result">
+        <block wx:if="{{charInfo}}">
+          <view class="conv-row" wx:if="{{charInfo.converted}}">
+            <text class="conv-orig">{{charInfo.origChar}}</text>
+            <text class="conv-arrow">→</text>
+            <text class="tc-char">{{charInfo.tcChar}}</text>
+            <text class="conv-badge">繁體轉換</text>
+          </view>
+          <view class="conv-row" wx:else>
+            <text class="tc-char">{{charInfo.tcChar}}</text>
+            <text class="conv-badge is-tc">已是繁體</text>
+          </view>
+          <text class="hint" wx:if="{{charInfo.loading}}" style="opacity:0.35;font-size:24rpx">查詢筆畫中…</text>
+          <view class="hint" wx:elif="{{charInfo.strokes}}">
+            <text>筆畫：</text>
+            <text class="stroke-badge">{{charInfo.strokes}} 畫</text>
+            <text class="auto-note">（已自動填入）</text>
+          </view>
+          <text class="hint" wx:elif="{{charInfo.noData}}" style="color:var(--gold-dim)">找不到筆畫資料，請手動輸入</text>
+        </block>
+        <text class="hint" wx:else style="opacity:0.5">輸入字後自動查詢筆畫</text>
+      </view>
+    </view>
+
+    <text class="card-title" style="margin-top: 36rpx">確認筆畫數</text>
+    <input class="stroke-input" type="number" placeholder="12" value="{{strokeValue}}" bindinput="onStrokeInput" />
+
+    <view class="branch-box" wx:if="{{branch}}">
+      <text class="branch-char">{{branch.n}}</text>
+      <view class="branch-detail">
+        <text>時辰：<text class="bold">{{branch.n}}時</text>（{{branch.r}}）</text>
+        <text>\n時辰數：<text class="bold">{{branch.num}}</text></text>
+        <text>\n現在時間：<text class="bold">{{currentTime}}</text></text>
+      </view>
+    </view>
+
+    <view class="btn btn-primary" bindtap="doCalculate">起卦 →</view>
+    <text class="hint">輸入字後筆畫會自動填入（需網路）；也可直接手動填寫。筆畫 > 8 時系統自動取餘數。</text>
+  </view>
+</view>

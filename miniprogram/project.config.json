@@ -1,0 +1,50 @@
+{
+  "description": "意識卦占卜 - I Ching Consciousness Hexagram",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "setting": {
+    "bundle": false,
+    "userConfirmedBundleSwitch": false,
+    "urlCheck": true,
+    "scopeDataCheck": false,
+    "coverView": true,
+    "es6": true,
+    "postcss": true,
+    "compileHotReLoad": false,
+    "lazyloadPlaceholderEnable": false,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "autoAudits": false,
+    "newFeature": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "useIsolateContext": true,
+    "nodeModules": false,
+    "enhance": true,
+    "useMultiFrameRuntime": true,
+    "showShadowRootInWxmlPanel": true,
+    "packNpmManually": false,
+    "enableEngp": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "showES6CompileOption": false,
+    "minifyWXML": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "compileType": "miniprogram",
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
+  "libVersion": "3.3.4",
+  "appid": "touristappid",
+  "projectname": "i-ching-consciousness-hexagram",
+  "miniprogramRoot": "./"
+}

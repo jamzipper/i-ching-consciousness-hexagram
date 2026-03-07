@@ -1,0 +1,89 @@
+<view class="container">
+  <view class="card">
+    <text class="step-tag">Result · 卦象</text>
+    <text class="question">「{{question}}」</text>
+
+    <view class="calc-table">
+      <view class="calc-row">
+        <text class="calc-label">字的筆畫</text>
+        <text class="calc-value">{{strokes}} 畫</text>
+      </view>
+      <view class="calc-row">
+        <text class="calc-label">時辰</text>
+        <text class="calc-value">{{branchName}}時（時辰數 {{branchNum}}）</text>
+      </view>
+    </view>
+
+    <view class="hr"></view>
+
+    <view class="hex-row">
+      <!-- 本卦 -->
+      <view class="hex-block">
+        <text class="hex-label-top">本 卦 · 當前處境</text>
+        <view class="hex-lines">
+          <view wx:for="{{origLinesReversed}}" wx:key="index"
+                class="hex-line {{item.moving ? 'moving' : ''}}">
+            <text class="hex-line-num">{{item.num}}</text>
+            <view wx:if="{{item.yang}}" class="yang"></view>
+            <block wx:else>
+              <view class="yin-l"></view>
+              <view class="yin-r"></view>
+            </block>
+          </view>
+        </view>
+        <text class="hex-kw">第 {{origNum}} 卦</text>
+        <text class="hex-name">{{origName}}</text>
+        <view class="trigram-row">
+          <text>上 </text><text class="tri-highlight">{{origTriUp}}</text>
+          <text> ／ 下 </text><text class="tri-highlight">{{origTriLo}}</text>
+        </view>
+      </view>
+
+      <text class="arrow-between">→</text>
+
+      <!-- 之卦 -->
+      <view class="hex-block">
+        <text class="hex-label-top">之 卦 · 發展趨勢</text>
+        <view class="hex-lines">
+          <view wx:for="{{futLinesReversed}}" wx:key="index" class="hex-line">
+            <text class="hex-line-num">{{item.num}}</text>
+            <view wx:if="{{item.yang}}" class="yang"></view>
+            <block wx:else>
+              <view class="yin-l"></view>
+              <view class="yin-r"></view>
+            </block>
+          </view>
+        </view>
+        <text class="hex-kw">第 {{futNum}} 卦</text>
+        <text class="hex-name">{{futName}}</text>
+        <view class="trigram-row">
+          <text>上 </text><text class="tri-highlight">{{futTriUp}}</text>
+          <text> ／ 下 </text><text class="tri-highlight">{{futTriLo}}</text>
+        </view>
+      </view>
+    </view>
+
+    <text class="result-note">本卦象徵當下，之卦象徵趨勢。動爻：第 {{moveLine}} 爻</text>
+
+    <!-- Interpretation toggle -->
+    <view class="interp-toggle" bindtap="toggleInterp">
+      <text>卦象解析 {{interpOpen ? '▴' : '▾'}}</text>
+    </view>
+    <view class="interp-section" wx:if="{{interpOpen}}">
+      <view class="interp-card">
+        <text class="interp-tag">本卦 · 當前處境</text>
+        <text class="interp-name">{{origName}}</text>
+        <text class="interp-body">{{origInterp}}</text>
+      </view>
+      <view class="interp-card">
+        <text class="interp-tag">之卦 · 發展趨勢</text>
+        <text class="interp-name">{{futName}}</text>
+        <text class="interp-body">{{futInterp}}</text>
+      </view>
+    </view>
+
+    <view class="btn-wrap">
+      <view class="btn" bindtap="doReset">重新起卦</view>
+    </view>
+  </view>
+</view>
