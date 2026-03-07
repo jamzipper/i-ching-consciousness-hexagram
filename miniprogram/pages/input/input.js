@@ -1,4 +1,4 @@
-const { getBranch, calculate, fetchStrokes } = require('../../utils/iching');
+const { getBranch, fetchStrokes } = require('../../utils/iching');
 const { convertChar, isConverted } = require('../../utils/sc2tc');
 
 Page({
@@ -77,10 +77,6 @@ Page({
     }
 
     const branch = this.data.branch;
-    const result = calculate(raw, branch.num);
-
-    const app = getApp();
-    app.globalData.branchInfo = branch;
 
     wx.redirectTo({
       url: '/pages/result/result?strokes=' + raw +
