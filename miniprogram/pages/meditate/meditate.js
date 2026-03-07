@@ -31,11 +31,15 @@ Page({
         const canvas = res[0].node;
         const ctx = canvas.getContext('2d');
         const dpr = wx.getWindowInfo().pixelRatio;
-        canvas.width = res[0].width * dpr;
-        canvas.height = res[0].height * dpr;
+        const cssW = res[0].width;
+        const cssH = res[0].height;
+        canvas.width = cssW * dpr;
+        canvas.height = cssH * dpr;
         ctx.scale(dpr, dpr);
         this.canvas = canvas;
         this.ctx = ctx;
+        this.cssW = cssW;
+        this.cssH = cssH;
         this.drawRing(1);
       });
   },
@@ -43,13 +47,12 @@ Page({
   drawRing(progress) {
     if (!this.ctx) return;
     const ctx = this.ctx;
-    const w = 110;
-    const cx = w;
-    const cy = w;
-    const r = 96;
-    const lineWidth = 8;
+    const cx = this.cssW / 2;
+    const cy = this.cssH / 2;
+    const r = cx * 0.87;
+    const lineWidth = cx * 0.073;
 
-    ctx.clearRect(0, 0, w * 2, w * 2);
+    ctx.clearRect(0, 0, this.cssW, this.cssH);
 
     // Track
     ctx.beginPath();
