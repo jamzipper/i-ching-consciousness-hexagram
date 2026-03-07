@@ -198,4 +198,5 @@
 .btn-wrap {
   text-align: center;
   margin-top: 36rpx;
+  padding-bottom: 40rpx;
 }
