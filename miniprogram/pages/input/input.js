@@ -1,5 +1,6 @@
 const { getBranch, fetchStrokes } = require('../../utils/iching');
 const { convertChar, isConverted } = require('../../utils/sc2tc');
+const { localStrokes } = require('../../utils/strokes');
 
 Page({
   data: {
@@ -22,13 +23,34 @@ Page({
 
   onCharInput(e) {
     const raw = e.detail.value;
+    if (!raw) {
+      this.setData({ charValue: '', charInfo: null });
+      return;
+    }
     const m = raw.match(/[\u4e00-\u9fff\u3400-\u4dbf]/);
     if (!m) {
-      this.setData({ charValue: raw, charInfo: null });
+      // During IME composition (pinyin), don't overwrite the display
+      // Only clear charInfo so we don't show stale results
+      if (this.data.charInfo) {
+        this.setData({ charInfo: null });
+      }
       return;
     }
 
     const ch = m[0];
+    this._processChar(ch);
+  },
+
+  onCharConfirm(e) {
+    const raw = e.detail.value;
+    if (!raw) return;
+    const m = raw.match(/[\u4e00-\u9fff\u3400-\u4dbf]/);
+    if (m) {
+      this._processChar(m[0]);
+    }
+  },
+
+  _processChar(ch) {
     const tc = convertChar(ch);
     const converted = isConverted(ch);
 
@@ -54,6 +76,10 @@ Page({
       }
       return count;
     }).then((count) => {
+      // Fallback to local dictionary if API fails
+      if (!count) count = localStrokes(tc);
+      if (!count && tc !== orig) count = localStrokes(orig);
+
       const info = Object.assign({}, this.data.charInfo, {
         loading: false,
         strokes: count || null,
