@@ -34,11 +34,12 @@ Page({
       if (this.data.charInfo) {
         this.setData({ charInfo: null });
       }
-      return;
+      return { value: raw };
     }
 
     const ch = m[0];
     this._processChar(ch);
+    return { value: ch };
   },
 
   onCharConfirm(e) {

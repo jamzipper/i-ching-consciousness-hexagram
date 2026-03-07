@@ -21,6 +21,7 @@ page {
   padding: 48rpx;
   width: 100%;
   margin: 16rpx 0;
+  box-sizing: border-box;
 }
 
 .step-tag {

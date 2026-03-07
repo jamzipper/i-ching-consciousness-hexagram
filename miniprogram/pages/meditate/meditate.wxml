@@ -7,7 +7,7 @@
     <view class="timer-wrap">
       <view class="timer-ring-container">
         <canvas type="2d" id="timerCanvas" class="timer-canvas"></canvas>
-        <text class="timer-num">{{remaining > 0 ? remaining : '✓'}}</text>
+        <view class="timer-num">{{remaining > 0 ? remaining : '✓'}}</view>
       </view>
       <text class="timer-msg" style="color: {{done ? 'var(--gold)' : 'var(--gold-dim)'}}">{{done ? '靜心完成，記住那個字。' : '靜心中…'}}</text>
     </view>

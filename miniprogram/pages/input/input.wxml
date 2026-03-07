@@ -4,7 +4,7 @@
     <text class="card-title">輸入觀想的字</text>
 
     <view class="char-row">
-      <input class="char-input" type="text" maxlength="1" placeholder="字" value="{{charValue}}" bindinput="onCharInput" bindconfirm="onCharConfirm" />
+      <input class="char-input" type="text" maxlength="10" placeholder="字" value="{{charValue}}" bindinput="onCharInput" bindconfirm="onCharConfirm" />
       <view class="char-result">
         <block wx:if="{{charInfo}}">
           <view class="conv-row" wx:if="{{charInfo.converted}}">
